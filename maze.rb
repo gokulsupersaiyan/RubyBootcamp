@@ -73,7 +73,7 @@ class Maze
     Couple.new(index / (@width + 1), index % (@width + 1))
   end
 
-  def is_solvable
+  def solvable?
     queue = Queue.new
     queue.push(@a_pos)
     until queue.empty?
@@ -114,14 +114,14 @@ end
 # Case 1
 maze_one = Maze.new(MAZE1)
 puts maze_one
-puts maze_one.is_solvable
+puts maze_one.solvable?
 
 # Case 2
 maze_two = Maze.new(MAZE2)
 puts maze_two
-puts maze_two.is_solvable
+puts maze_two.solvable?
 
 # Case 3
 maze_three = Maze.new(MAZE3)
 puts maze_three
-puts maze_three.is_solvable
+puts maze_three.solvable?
