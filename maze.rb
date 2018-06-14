@@ -37,7 +37,7 @@ class Maze
 
   def steps
     solve
-    solvable? ? 0 : @result.two + 1
+    solvable? ? @result.two + 1 : 0
   end
 
   def to_s
