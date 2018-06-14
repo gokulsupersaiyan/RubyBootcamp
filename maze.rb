@@ -74,40 +74,64 @@ class Maze
   end
 
   def solvable?
-    queue = Queue.new
-    queue.push(@a_pos)
-    until queue.empty?
-        current_itr = queue.pop
-        set_char_at(current_itr.one,current_itr.two)
-        # Top
-        if current_itr.one - 1 >= 0 && !block?(current_itr.one - 1, current_itr.two)
-          return true if get_char_at(current_itr.one - 1, current_itr.two) == 'B'
-          queue.push(Couple.new(current_itr.one - 1, current_itr.two))
-        end
+    solve
+    @result.one
+  end
 
-        # Left
-        if current_itr.two - 1 >= 0 && !block?(current_itr.one, current_itr.two - 1)
-          return true if get_char_at(current_itr.one ,current_itr.two - 1) == 'B'
-          queue.push(Couple.new(current_itr.one, current_itr.two - 1))
-        end
-
-        # Bottom
-        if current_itr.one + 1 < @length && !block?(current_itr.one + 1, current_itr.two)
-          return true if get_char_at(current_itr.one + 1,current_itr.two) == 'B'
-          queue.push(Couple.new(current_itr.one + 1, current_itr.two))
-        end
-
-        # Right
-        if current_itr.two + 1 < @width && !block?(current_itr.one, current_itr.two + 1)
-          return true if get_char_at(current_itr.one ,current_itr.two + 1) == 'B'
-          queue.push(Couple.new(current_itr.one, current_itr.two + 1))
-        end
-    end
-    false
+  def steps
+    solve
+    @result.two
   end
 
   def to_s
     %{Length : #{@length}, Width : #{@width}, A pos : #{@a_pos}, B pos : #{@b_pos}}
+  end
+
+  private
+
+  def solve
+    return @result if @is_solved
+    queue = Queue.new
+    queue.push(@a_pos)
+    memoize = Array.new(@length) { Array.new(@width, 0) }
+    min = Float::INFINITY
+
+    until queue.empty?
+        current_itr = queue.pop
+        set_char_at(current_itr.one, current_itr.two)
+        distance = memoize[current_itr.one][current_itr.two]
+        next if distance > min
+        # Top
+        if current_itr.one - 1 >= 0 && !block?(current_itr.one - 1, current_itr.two)
+          queue.push(Couple.new(current_itr.one - 1, current_itr.two))
+          memoize[current_itr.one - 1][current_itr.two] = distance + 1
+          min = distance if get_char_at(current_itr.one - 1, current_itr.two) == 'B'
+        end
+
+        # Left
+        if current_itr.two - 1 >= 0 && !block?(current_itr.one, current_itr.two - 1)
+          queue.push(Couple.new(current_itr.one, current_itr.two - 1))
+          memoize[current_itr.one][current_itr.two - 1] = distance + 1
+          min = distance if get_char_at(current_itr.one ,current_itr.two - 1) == 'B'
+        end
+
+        # Bottom
+        if current_itr.one + 1 < @length && !block?(current_itr.one + 1, current_itr.two)
+          queue.push(Couple.new(current_itr.one + 1, current_itr.two))
+          memoize[current_itr.one + 1][current_itr.two] = distance + 1
+          min = distance if get_char_at(current_itr.one + 1,current_itr.two) == 'B'
+        end
+
+        # Right
+        if current_itr.two + 1 < @width && !block?(current_itr.one, current_itr.two + 1)
+          queue.push(Couple.new(current_itr.one, current_itr.two + 1))
+          memoize[current_itr.one][current_itr.two + 1] = distance + 1
+          min = distance if get_char_at(current_itr.one ,current_itr.two + 1) == 'B'
+        end
+    end
+    @result = Couple.new(min < Float::INFINITY, min)
+    @is_solved = true
+    @result
   end
 end
 
@@ -115,13 +139,16 @@ end
 maze_one = Maze.new(MAZE1)
 puts maze_one
 puts maze_one.solvable?
+puts maze_one.steps
 
 # Case 2
 maze_two = Maze.new(MAZE2)
 puts maze_two
 puts maze_two.solvable?
+puts maze_two.steps
 
 # Case 3
 maze_three = Maze.new(MAZE3)
 puts maze_three
 puts maze_three.solvable?
+puts maze_three.steps
